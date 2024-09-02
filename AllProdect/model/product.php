@@ -24,6 +24,8 @@ class Product
         $db->DML($sql,
          [$name, $price, $prod_image,$availability, $category]);   
         // $db->DML($sql,$data);    
+                                   
+    
     }
 
     // function update($id, $newName=$this->name, $price=$this->price, $prod_image=$this->prod_image, $availability=$this->availability)
@@ -33,12 +35,45 @@ class Product
     //     $db->DML($sql,[$newName, $price, $prod_image, $availability, $id]);
     // }
 
-    function update($id, $name, $price, $prod_image,$availability, $category)
+    function update($id, $changed)
     {
         $db = dbconnect();
-        $sql = 'update product set name=?, price=?,image=?, available=?, category_id=? where id = ?';
-        $db->DML($sql,
-        [$name, $price, $prod_image,$availability, $category['id'], $id]);
+        
+        $sql = 'UPDATE product SET';
+        $params = array();
+        
+        if (isset($changed['name'])) {
+            $sql .= ' name = ?,';
+            $params[] = $changed['name'];
+        }
+        
+        if (isset($changed['price'])) {
+            $sql .= ' price = ?,';
+            $params[] = $changed['price'];
+        }
+        
+        if (isset($changed['image'])) {
+            $sql .= ' image = ?,';
+            $params[] = $changed['image'];
+        }
+        
+        if (isset($changed['available'])) {
+            $sql .= ' available = ?,';
+            $params[] = $changed['available'];
+        }
+        
+        if (isset($changed['category_id'])) {
+            $sql .= ' category_id = ?,';
+            $params[] = $changed['category_id'];
+        }
+        
+        // Remove the trailing comma
+        $sql = rtrim($sql, ',');
+        
+        $sql .= ' WHERE id = ?';
+        $params[] = $id;
+        
+        $db->DML($sql, $params);
     }
 
     function delete($id)
@@ -49,12 +84,19 @@ class Product
         $db->DML($sql,[$id]);
     }
 
+    function getName($name)
+    {
+        $db = dbconnect();
+        $result = $db->selectWithCondition('product','name = "'.strtolower($name).'"' );
+        return $result;
+    }
     function getAll()
     {
         $db = dbconnect();
         $result = $db->select('product');
         return $result;
     }
+    
 
     function getOne($id)
     {

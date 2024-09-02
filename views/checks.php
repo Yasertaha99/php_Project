@@ -40,6 +40,8 @@
                 <tr>
                     <th>User</th>
                     <th>Total Amount</th>
+                    <th>Action</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -54,6 +56,8 @@
                     <tr>
                         <th>Order Date</th>
                         <th>Amount</th>
+                        <th>Action</th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -114,24 +118,29 @@
             userTableBody.innerHTML = '';
             users.forEach(user => {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td>${user.name}</td><td>${user.total_amount}</td>`;
-                row.addEventListener('click', async () => {
-                    const fromDate = document.getElementById('fromDate').value;
-                    const toDate = document.getElementById('toDate').value;
-                    const productContent = document.getElementById('productContent');
-                    productContent.innerHTML = '';
+                row.innerHTML = `
+            <td>${user.name}</td>
+            <td>${user.total_amount}</td>
+            <td><button class="btn btn-primary btn-sm show-orders-btn">Show</button></td>
+        `;
+        const showButton = row.querySelector('.show-orders-btn');
+        showButton.addEventListener('click', async () => {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const productContent = document.getElementById('productContent');
+            productContent.innerHTML = '';
 
-                    if (fromDate && toDate && fromDate > toDate) {
-                        alert('"From" date must be less than or equal to "To" date.');
-                        return;
-                    }
+            if (fromDate && toDate && fromDate > toDate) {
+                alert('"From" date must be less than or equal to "To" date.');
+                return;
+            }
 
-                    const orders = await fetchOrders(user.id, fromDate, toDate);
-                    showOrders(orders, user.name);
-                });
-                userTableBody.appendChild(row);
-            });
-        }
+            const orders = await fetchOrders(user.id, fromDate, toDate);
+            showOrders(orders, user.name);
+        });
+        userTableBody.appendChild(row);
+    });
+}
 
         async function showOrders(orders, userName) {
             let userText = userName;
@@ -175,8 +184,9 @@
             ordersTableBody.appendChild(numberOfOrdersRow)
             orders.forEach(order => {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td>${order.order_date}</td><td>${order.total_price}</td>`;
-                row.addEventListener('click', () => showProducts(order.id));
+                row.innerHTML = `<td>${order.order_date}</td><td>${order.total_price}</td><td><button class="btn btn-primary btn-sm show-pro-btn">Show</button></td>`;
+                const showButton= row.querySelector('.show-pro-btn');
+                showButton.addEventListener('click', () => showProducts(order.id));
                 ordersTableBody.appendChild(row);
             });
         }

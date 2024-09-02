@@ -2,7 +2,9 @@
 // require("../model/product.php");
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-require("../../model/product.php");
+//require("../model/product.php");
+//require(realpath(__DIR__ . '/../model/category.php'));
+require(realpath(__DIR__ . '/../model/product.php'));
 
 class ProductController
 {
@@ -20,7 +22,11 @@ class ProductController
         $products = $this->prod1->getAll();// all products
         return $products;
     }
-
+    function getNameProduct( $name)
+    {
+        $product = $this->prod1->getName( $name );
+        return $product;
+    }
     function getProduct( $id )
     {
         $product = $this->prod1->getOne( $id );
@@ -67,25 +73,22 @@ class ProductController
         $prod_image1 = 'uploads/' . $prod_image['name'];
         if(move_uploaded_file($prod_image['tmp_name'], $prod_image1))
         {  
-            $this->prod1->insert($name, $price, $prod_image1, $available, $category);
+            $this->prod1->insert($name, $price, $prod_image['name'], $available, $category);
         }
 
     }
-    function updateProd($id, $name, $price, $prod_image, $available, $category)
-    {
-        if (!empty($name) && !empty($price) && !empty($prod_image) && !empty($available) && !empty($category)) 
-        {
-            $updatedProd = $this->getProduct($id);
-            if ($prod_image['name']) {
-                $prod_image1 = 'uploads/' . $prod_image['name'];
-                move_uploaded_file($prod_image['tmp_name'], $prod_image1);
-            } else {
-                
-                $prod_image1 = $updatedProd[0]['prod_image'];
-            }
-            $this->prod1->update($id, $name, $price, $prod_image1, $available, $category);
+    function updateProd($id,  $changed)
+    { 
+        if(isset($changed['image'])) {
+           
+            $prod_image1 = 'uploads/' . $changed['image']['name'];
+            move_uploaded_file($changed['image']['tmp_name'], $prod_image1);
+            $changed['image']=  $changed['image']['name'];
         }
-    }
+        
+        $this->prod1->update($id, $changed);
+        }
+    
     
 }
 // $p=new ProductController();

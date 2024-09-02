@@ -18,7 +18,7 @@ $db = DB::getInstance();
 $conn=$db->getConnection();
 
 $order_id = $_GET['order_id'];
-
+//echo($order_id);
 // Fetch products for the order
 $sql = "SELECT p.image, p.price, op.quantity 
         FROM order_product op 
@@ -28,6 +28,7 @@ $stmt = $conn->prepare($sql);
 $stmt->execute();
 
 $result =  $stmt->fetchAll(PDO::FETCH_ASSOC);
+//var_dump( $result );
 foreach($result as $row){
         $user[] = $row;
     

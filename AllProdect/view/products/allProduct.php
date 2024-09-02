@@ -62,9 +62,13 @@
 
 
 <?php 
+session_start();
+
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-include_once('../layouts/app.php');
+
+// include_once('../layouts/app.php');
+include_once('../../../views/templates/adminNav.php');
 require("../../controller/product.php");
 
 $allProd = new ProductController(); 
@@ -150,7 +154,43 @@ $products = $allProd->getProducts($offset, $productsPerPage); // Modify getProdu
         </ul>
     </nav>
     </div>
-
+    <div id="errorModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modalErrorMessage" class="text-success"></p>
+            </div>
+        </div>
+    </div>
+</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        // Hide success or error message after 2 seconds
+        function showErrorModal(message) {
+    var modal = new bootstrap.Modal(document.getElementById('errorModal'));
+    var modalMessage = document.getElementById('modalErrorMessage');
+    modalMessage.innerText = message;
+    modal.show();
+
+    setTimeout(function() {
+        modal.hide();
+    }, 2000);
+}
+        
+    </script>
+    <?php 
+if (isset($_SESSION['message'])) {
+    $message=[];
+    $message['text'] = $_SESSION['message']['text'];
+    //$message=$message ; 
+    echo "<script>showErrorModal('";
+        echo implode($message);
+        echo "');</script>";
+    unset($_SESSION['message']);
+} ?>
 </body>
 </html>

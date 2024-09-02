@@ -1,6 +1,8 @@
 <?php 
+
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
+
 class DBConnection
 {
     private $host, $dbname, $username, $password, $port;

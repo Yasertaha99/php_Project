@@ -6,10 +6,12 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 // Check if the user is logged in and his role is admin or not
 if (!isset($_SESSION['logged_in'])) {
-  header('Location: login.php');
+  header('Location:http://localhost/phpproject/views/login.php');
 } else if ($_SESSION['user']['role'] !== 'admin') {
   header('Location: userHome.php');
 }
+$base_url = "http://localhost/phpproject";
+
 ?>
 
 <!-- Navbar start -->
@@ -24,18 +26,17 @@ if (!isset($_SESSION['logged_in'])) {
     </button>
     <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
       <div class="navbar-nav px-3 px-lg-5">
-        <a href="./adminHome.php" class="nav-item nav-link mx-2 mx-lg-3 small">Home</a>
-        <a href="http://localhost/12/AllProdect/view/products/allProduct.php" class="nav-item nav-link mx-2 mx-lg-3 small">Products</a>
-        <a href="./adduser.php" class="nav-item nav-link mx-2 mx-lg-3 small">Users</a>
-        <a href="./manual_orders.php" class="nav-item nav-link mx-2 mx-lg-3 small">Manual Orders</a>
-        <a href="./checks.php" class="nav-item nav-link mx-2 mx-lg-3 small">Checks</a>
-        <a href="./orders.php" class="nav-item nav-link mx-2 mx-lg-3 small">Orders</a>
+        <a href="<?php echo $base_url; ?>/views/adminHome.php" class="nav-item nav-link mx-2 mx-lg-3 small">Home</a>
+        
+        <a href="<?php echo $base_url; ?>/AllProdect/view/products/allProduct.php" class="nav-item nav-link mx-2 mx-lg-3 small">Products</a>
+        <a href="<?php echo $base_url; ?>/views/adduser.php" class="nav-item nav-link mx-2 mx-lg-3 small">Users</a>
+        <a href="<?php echo $base_url; ?>/views/checks.php" class="nav-item nav-link mx-2 mx-lg-3 small">Checks</a>
+        <a href="<?php echo $base_url; ?>/views/orders.php" class="nav-item nav-link mx-2 mx-lg-3 small">Orders</a>
       </div>
       <ul class="navbar-nav d-flex align-items-center">
         <li class="nav-item d-flex align-items-center">
           <a class="nav-link small d-flex align-items-center" href="#">
-            <img class="nav-img rounded-circle me-2 me-lg-3" src="<?= $_SESSION['user']['image'] ?>" width="40px" width-lg="60px" />
-            <span class="nav-user"><?= $_SESSION['user']['name'] ?></span>
+          <img class="nav-img rounded-circle me-2 me-lg-3" src="<?= $base_url; ?><?= $_SESSION['user']['image']; ?>" width="40px" width-lg="60px" />            <span class="nav-user"><?= $_SESSION['user']['name'] ?></span>
           </a>
         </li>
         <li class="nav-item d-none d-lg-block">

@@ -1,4 +1,5 @@
 <?php
+
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
@@ -6,8 +7,8 @@ require("dbconnection.php");
 
 function dbconnect()
 {
-    $db = new DBConnection('localhost', 'p1', 'root', '');
-    $db->connect('mysql');
+    $db = new DBConnection('localhost', 'cafe', 'root', 'mmMMssSS$2024');
+$db->connect('mysql');
     return $db;
 }
 class Category
@@ -34,7 +35,7 @@ class Category
 
     function update($id, $newName)
     {
-        $db = dbconnect();
+       $db = dbconnect();
         // $sql = 'insert into category (id,name) values('.$id.','.$namem.')';
         $sql = 'update category set name=? where id = ?';
         $db->DML($sql,[$newName, $id]);
@@ -42,7 +43,7 @@ class Category
 
     function delete($id)
     {
-        $db = dbconnect();
+       $db = dbconnect();
         // $sql = 'insert into category (id,name) values('.$id.','.$namem.')';
         $sql = 'delete from category where id = ?';
         $db->DML($sql,[$id]);
@@ -69,7 +70,7 @@ class Category
 
     public static function getOneAsObject($name)
     {
-        $db = dbconnect();
+       $db = dbconnect();
         $result = $db->selectWithCondition("category", "name = ?" ,[$name]);
         //var_dump($result);
         
@@ -83,8 +84,14 @@ class Category
 
     function getOne($id)
     {
-        $db = dbconnect();
+    $db = dbconnect();
         $result = $db->selectWithCondition('category', 'id = '.$id);
+        return $result;
+    }
+    function getName($name)
+    {
+    $db = dbconnect();
+        $result = $db->selectWithCondition('category','name = "'.strtolower($name).'"' );
         return $result;
     }
 }

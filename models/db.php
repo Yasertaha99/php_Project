@@ -3,9 +3,9 @@
 class DB
 {
   private $host = 'localhost';
-  private $dbname = 'p1';
+  private $dbname = 'cafe';
   private $user = 'root';
-  private $password = '';
+  private $password = 'mmMMssSS$2024';
   private static $instance;
   private $connection;
 

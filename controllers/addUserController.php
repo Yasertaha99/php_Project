@@ -53,7 +53,7 @@ class UserController
                     throw new Exception("Invalid image file.");
                 }
 
-                $targetDir = "../public/images/";
+                $targetDir = "/public/images/";
                 $fileName = uniqid() . '_' . basename($profilePicture['name']);
                 $targetPath = $targetDir . $fileName;
                 if (!move_uploaded_file($profilePicture['tmp_name'], $targetPath)) {

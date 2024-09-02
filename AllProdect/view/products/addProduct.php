@@ -1,25 +1,12 @@
 <?php
+session_start();
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-include_once('../layouts/app.php');
+include_once('../../../views/templates/adminNav.php');
 require("../../controller/product.php");
 $allProd = new ProductController();
-// $allCategories = $allProd->getAllCategories();
-$allCategories =  Category::getAllAsObject();
-if(!empty($_POST))
-{ 
-    $one = Category::getOneAsObject($_POST['cat_name']);
-// echo '=-----------------one--<br>';
-// var_dump($one);
-// echo '-------------'. $one[0]['id'];
-// echo $_FILES['prod_image']['name'];
-    // $prod1= new Product("Tea33", 10, "tea", "avaliable", (object) $allCategories[0]);
-    // $prod1= new Product($_POST['cate_name'], $_POST['price'], "image", "avaliable", $one[0]);
-    $allProd->insertProd($_POST['name'], $_POST['price'], $_FILES['image'], "avaliable" ,$one[0]['id']);
-}
-
-print_r($_POST);
+$allCategories = Category::getAllAsObject();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,23 +28,25 @@ print_r($_POST);
 
 <body>
     <div class="container">
-        <form action="#" method="post" enctype="multipart/form-data">
+        <form action="#" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
             <fieldset>
                 <legend> Add New Product</legend>
                
                 <div class="mb-3">
-                    <label for="TextInput" class="form-label"> Product</label>
-                    <input type="text" id="TextInput" class="form-control" placeholder="Put your product name"
+                    <label for="name" class="form-label"> Product</label>
+                    <input type="text" id="name" class="form-control" placeholder="Put your product name"
                         name="name">
+                    <div id="nameError" class="text-danger"></div>
                 </div>
                 <div class="mb-3">
-                    <label for="TextInput" class="form-label"> Price</label>
-                    <input type="number" id="TextInput" class="form-control" name="price">
+                    <label for="price" class="form-label"> Price</label>
+                    <input type="number" id="price" class="form-control" name="price">
+                    <div id="priceError" class="text-danger"></div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="Select" class="form-label"> Category</label>
-                    <select id="Select" class="form-select" name="cat_name">
+                    <label for="cat_name" class="form-label"> Category</label>
+                    <select id="cat_name" class="form-select" name="cat_name">
                         <option selected>Select Category</option>
                         <?php
                         for($i=0;$i<count($allCategories);$i++)
@@ -66,50 +55,21 @@ print_r($_POST);
                             }
                         ?>
                     </select>
-                    <!-- <td><a href='#' class='btn btn-info'> Add Category </a> -->
-                    <!-- <input type="hidden" name="categoryid" value="{$cate['id']}"> -->
+                    <div id="catError" class="text-danger"></div>
                 </div>
-                <a href="/cafeteria/view/categories/addCategory.php" class='btn btn-primary'> Add Category </a>
-                <!-- Add Category -->
-                <!-- Button trigger modal -->
-                <!-- <button type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary"
-                    data-mdb-modal-init data-mdb-target="#staticBackdrop5">
-                    Add Category
-                </button> -->
-
-                <!-- Modal -->
-                <!-- <div class="modal top fade" id="staticBackdrop5" tabindex="-1" aria-labelledby="exampleModalLabel"
-                    aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="true">
-                    <div class="modal-dialog modal-dialog-centered text-center d-flex justify-content-center">
-                        <div class="modal-content w-75">
-                            <div class="modal-body p-4">
-                                <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20%281%29.webp" alt="avatar" class="rounded-circle position-absolute top-0 start-50 translate-middle h-50" />
-                                <form action="/var/www/html/cafeteria/view/categories/addCategory.php" method="post">
-                                    <div>
-                                        <div class="modal-header">
-                                            <h5 class="my-3">Add Category</h5>
-                                            <button type="button" data-mdb-button-init data-mdb-ripple-init
-                                                class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div data-mdb-input-init class="form-outline mb-4">
-                                            <input type="text" id="cate_name" class="form-control" name="name" />
-                                            <label class="form-label" for="cate_name">Category Name</label>
-                                        </div>
-
-                                        Submit button
-                                        <input type="submit" class="btn btn-primary"value="Add">
-                                        <input type="reset" class="btn btn-warning" value="Reset">
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
-                <!-- Modal -->
-                <!--  -->
+                <a href="../categories/addCategory.php?source=addProduct" class='btn btn-primary'> Add Category </a>
                 <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Product Picture</label>
-                    <input type="file" class="form-control" name="image" aria-describedby="emailHelp">
+                    <label for="image" class="form-label">Product Picture</label>
+                    <input type="file" class="form-control" name="image" id="image">
+                    <div id="imageError" class="text-danger"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="available" class="form-label">Available</label>
+                    <select id="available" class="form-select" name="available">
+                        <option value="available">Yes</option>
+                        <option value="unavailable">No</option>
+                    </select>
+                    <div id="availableError" class="text-danger"></div>
                 </div>
                 <input type="submit" class="btn btn-primary" value="Save">
                 <input type="reset" class="btn btn-warning" value="Reset">
@@ -117,18 +77,167 @@ print_r($_POST);
             </fieldset>
         </form>
     </div>
-
-
-
-
-    <!-- for popup -->
-    <!-- MDB -->
+    <div id="notificationModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalNotificationMessage" class="text-success"></p>
+                </div>
+            </div>
+        </div>
+    </div>
     <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.2/mdb.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+    <script>
+        function showNotificationModal(message, isError) {
+            var modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+            var modalTitle = document.getElementById('modalTitle');
+            var modalMessage = document.getElementById('modalNotificationMessage');
+            
+            if (isError) {
+                modalTitle.innerText = 'Error';
+                modalMessage.className = 'text-danger';
+            } else {
+                modalTitle.innerText = 'Notification';
+                modalMessage.className = 'text-success';
+            }
+            
+            modalMessage.innerText = message;
+            modal.show();
+            setTimeout(function() {
+                modal.hide();
+            }, 3000);
+        }
 
+        function validateForm() {
+            var name = document.getElementById('name').value;
+            var price = document.getElementById('price').value;
+            var cat_name = document.getElementById('cat_name').value;
+            var image = document.getElementById('image').value;
+            var available = document.getElementById('available').value;
+            var isValid = true;
+            var regex = /^(?!.*\s{2})[A-Za-z][A-Za-z\s]*$/;
+
+            document.getElementById('nameError').innerText = '';
+            document.getElementById('priceError').innerText = '';
+            document.getElementById('catError').innerText = '';
+            document.getElementById('imageError').innerText = '';
+            document.getElementById('availableError').innerText = '';
+
+            if (name.trim() === "") {
+                document.getElementById('nameError').innerText = "Product name must be filled out";
+                isValid = false;
+            }
+            if (name.length < 3) {
+                document.getElementById('nameError').innerText = "Product name must be at least 3 characters long";
+                isValid = false;
+            }
+            if (!regex.test(name)) {
+                document.getElementById('nameError').innerText = "Product name must only contain letters and not start space and does not have two consecutive spaces";
+                isValid = false;
+            }
+
+            if (price === "" || isNaN(price) || price <= 0) {
+                document.getElementById('priceError').innerText = "Price must be a number greater than 0";
+                isValid = false;
+            }
+
+            if (cat_name === "Select Category") {
+                document.getElementById('catError').innerText = "Please select a category";
+                isValid = false;
+            }
+
+            if (image === "") {
+                document.getElementById('imageError').innerText = "Please upload a product picture";
+                isValid = false;
+            } else {
+                var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+                if (!allowedExtensions.exec(image)) {
+                    document.getElementById('imageError').innerText = "Please upload a valid image file (jpg, jpeg, png, gif)";
+                    isValid = false;
+                }
+            }
+
+            if (available !== "available" && available !== "unavailable") {
+                document.getElementById('availableError').innerText = "Available must be either 'yes' or 'no'";
+                isValid = false;
+            }
+
+            return isValid;
+        }
+    </script>
 </body>
 
 </html>
+<?php
+if (isset($_SESSION['message'])) {
+    $message = $_SESSION['message']['text'];
+    $isError = $_SESSION['message']['type'] === 'error';
+    echo "<script>showNotificationModal('";
+    echo $message;
+    echo "', ";
+    echo $isError ? 'true' : 'false';
+    echo ");</script>";
+    unset($_SESSION['message']);
+}
+
+if (!empty($_POST)) {
+    $errors = [];
+    if (empty($_POST['name'])) {
+        $errors['name'] = "Product name is required";
+    } 
+    if (strlen($_POST['name']) < 3) {
+        $errors['name'] = "Product name must be at least 3 characters long.";
+    }
+    else {
+        $existingProduct = $allProd->getNameProduct($_POST['name']);
+        if ($existingProduct) {
+            $errors['name'] = "Product name already exists";
+        }
+    }
+
+    if (empty($_POST['price']) || !is_numeric($_POST['price']) || $_POST['price'] <= 0) {
+        $errors['price'] = "Price must be a number greater than 0";
+    }
+
+    if ($_POST['cat_name'] === "Select Category") {
+        $errors['cat_name'] = "Please select a category";
+    }
+
+    if (empty($_FILES['image']['name'])) {
+        $errors['image'] = "Please upload a product picture";
+    } else {
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+        $fileExtension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+        if (!in_array($fileExtension, $allowedExtensions)) {
+            $errors['image'] = "Please upload a valid image file (jpg, jpeg, png, gif)";
+        }
+    }
+
+    if ($_POST['available'] !== "available" && $_POST['available'] !== "unavailable") {
+        $errors['available'] = "Available must be either 'yes' or 'no'";
+    }
+
+    if (empty($errors)) {
+        $one = Category::getOneAsObject($_POST['cat_name']);
+
+        $allProd->insertProd($_POST['name'], $_POST['price'], $_FILES['image'], $_POST['available'], $one[0]['id']);
+        $_SESSION['message'] = ['type' => 'success', 'text' => 'Product added successfully'];
+       
+        echo "<script>location.href='allProduct.php';</script>";
+        exit();
+    
+    } else {
+        echo "<script>showNotificationModal('";
+        echo implode("<br>", $errors);
+        echo "', true);</script>";
+    }
+}
+?>

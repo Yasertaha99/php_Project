@@ -1,7 +1,7 @@
 <?php 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-include_once('../layouts/app.php');
+include_once('../../../views/templates/adminNav.php');
 require("../../controller/product.php");
 $allProd = new ProductController();
 // $methods = get_class_methods('ProductController');
@@ -40,11 +40,11 @@ $products = $allProd->getAvailables();
         </tr>
             <?php
             foreach($products as $product)
-            {
+            { 
                 echo "<tr>
                 <td>{$product['name']}</td> 
                 <td>{$product['price']}</td> 
-                <td> <img src='{$product['image']}' width='100' height='100'></td>
+                <td> <img src='./uploads/{$product['image']}' width='100' height='100'></td>
                 <td>{$product['available']}</td> 
                 
                 <td><a href='editProduct.php?id={$product['id']}' class='btn btn-info'> Edit </a> 
