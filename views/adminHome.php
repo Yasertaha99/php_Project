@@ -90,7 +90,7 @@ $db = DB::getInstance();
           $products = $db->select("product", ["available"], ["available"]);
           foreach ($products as $product) {
             echo "<div class='card m-3 product' style='width: 9rem'>
-                <img src='../public/images/{$product['image']}' class='card-img-top' alt='...' />
+                <img src='../AllProdect/view/products/uploads/{$product['image']}' class='card-img-top' alt='...' />
                 <h6 class='menu-price' style='width: 50px; height: 50px; left: 80%'><span class='productPrice '>{$product['price']}</span>LE</h6>
                 <div class='card-body'>
                     <p class='card-text'>
