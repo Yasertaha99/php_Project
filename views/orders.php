@@ -24,6 +24,8 @@
             <button class="btn btn-primary filter-button" onclick="filterOrders('processing')">Processing</button>
             <button class="btn btn-primary filter-button" onclick="filterOrders('out for delivery')">Out for Delivery</button>
             <button class="btn btn-primary filter-button" onclick="filterOrders('done')">Done</button>
+            <button class="btn btn-primary filter-button" onclick="filterOrders('cancel')">cancel</button>
+
         </div>
 
         <table class="table table-bordered table-hover">

@@ -1,5 +1,6 @@
 <?php
-
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 require_once "../models/db.php";
 require_once "../models/orderModel.php";
 
@@ -91,7 +92,9 @@ class OrderController
 
   public function cancelOrder($orderId)
   {
-    $this->db->delete('orders', ['id'], [$orderId]);
+    $this->updateOrderStatus($orderId, "cancel");
+
+//    $this->db->delete('orders', ['id'], [$orderId]);
     $this->redirectToPage("../views/myOrders.php");
   }
 
