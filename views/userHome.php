@@ -83,7 +83,7 @@ $orderModel = new OrderModel();
             <div class='d-flex flex-wrap'>";
           foreach ($result as $row) {
             echo "<div class='card m-3' style='width: 9rem'>
-                    <img src='../public/images/{$row['image']}' class='card-img-top' alt='...' />
+                    <img src='../AllProdect/view/products/uploads/{$row['image']}' class='card-img-top' alt='...' />
                     <div class='card-body'>
                       <p class='card-text'>
                         {$row['name']}

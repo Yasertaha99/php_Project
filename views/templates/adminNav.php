@@ -29,7 +29,7 @@ $base_url = "http://localhost/phpproject";
         <a href="<?php echo $base_url; ?>/views/adminHome.php" class="nav-item nav-link mx-2 mx-lg-3 small">Home</a>
         
         <a href="<?php echo $base_url; ?>/AllProdect/view/products/allProduct.php" class="nav-item nav-link mx-2 mx-lg-3 small">Products</a>
-        <a href="<?php echo $base_url; ?>/views/adduser.php" class="nav-item nav-link mx-2 mx-lg-3 small">Users</a>
+        <a href="<?php echo $base_url; ?>/views/adminUsers.php" class="nav-item nav-link mx-2 mx-lg-3 small">Users</a>
         <a href="<?php echo $base_url; ?>/views/checks.php" class="nav-item nav-link mx-2 mx-lg-3 small">Checks</a>
         <a href="<?php echo $base_url; ?>/views/orders.php" class="nav-item nav-link mx-2 mx-lg-3 small">Orders</a>
       </div>

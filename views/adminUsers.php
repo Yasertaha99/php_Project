@@ -2,7 +2,8 @@
 require_once "templates/adminNav.php";
 require_once "../models/db.php";
 require_once "../models/allProducts&usersModel.php";
-
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 // Instantiate the DB class
 $db = DB::getInstance();
 $db2 = new UsersandProducts();
@@ -54,7 +55,7 @@ ON u.room_id = r.id WHERE u.id != $adminId LIMIT $start, $rows_per_page");
               <td><?= $user['email']; ?></td>
               <td><?= $user['room_id']; ?></td>
               <td><?= $user['ext']; ?></td>
-              <td><img src='../public/images/<?= $user['image']; ?>' alt='User Image' style='max-width: 50px; max-height: 50px;'></td>
+              <td><img src='..<?= $user['image']; ?>' alt='User Image' style='max-width: 50px; max-height: 50px;'></td>
               <td class='text-center'>
                 <!-- Buttons for edit and delete actions -->
                 <!-- Button trigger modal for edit -->
@@ -264,7 +265,7 @@ ON u.room_id = r.id WHERE u.id != $adminId LIMIT $start, $rows_per_page");
             $("tr#userRow<?= $user['id']; ?> td:eq(1)").text(updatedUser.email);
             $("tr#userRow<?= $user['id']; ?> td:eq(2)").text(updatedUser.room_id);
             $("tr#userRow<?= $user['id']; ?> td:eq(3)").text(updatedUser.ext);
-            $("tr#userRow<?= $user['id']; ?> td:eq(4) img").attr("src", "../public/images/" + updatedUser.image);
+            $("tr#userRow<?= $user['id']; ?> td:eq(4) img").attr("src" ,".." + updatedUser.image);
 
             // console.log(updatedUser.image);
           } else {
