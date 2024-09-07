@@ -1,22 +1,24 @@
 
 <?php
 session_start();
-
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 require '../vendor/autoload.php';
+require_once "../models/db.php";
+require_once "templates/head.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-$host = 'localhost';
-$db = 'p1';
-$user = 'root';
-$pass = '';
+$db = DB::getInstance();
+$conn=$db->getConnection();
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
-}
+
+// try {
+//     $conn = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
+//     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+// } catch (PDOException $e) {
+//     die("Database connnection failed: " . $e->getMessage());
+// }
 function send_mail($recipient, $subject, $message)
 {
     $mail = new PHPMailer();
@@ -43,21 +45,40 @@ function send_mail($recipient, $subject, $message)
         return true;
     }
 }
-
+if(isset($_POST['email'])){
 // إنشاء توكن عشوائي
-$token = bin2hex(random_bytes(16));
 
+    $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+
+    if (!$email) {
+        $errors['forgot_password'] = "Please enter a valid email.";
+    } 
+else {
+    $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
+    $stmt->execute([$email ]);
+    
+    if ($stmt->rowCount() > 0) {
+$token = bin2hex(random_bytes(16));
 // تخزين التوكين في قاعدة البيانات مع عنوان البريد الإلكتروني
-$stmt = $pdo->prepare("UPDATE user SET reset_token = ? WHERE email = ?");
-$stmt->execute([$token, $_POST['email']]);
+$stmt = $conn->prepare("UPDATE user SET reset_token = ? WHERE email = ?");
+$stmt->execute([hash('sha256', $token), $email]);
 
 // بناء الرابط مع التوكين
-$mailHtml = "Your link for reset password <a href='http://localhost/phpproject/views/confirm_password.php?token=" . urlencode($token) . "'>Here</a>";
+$mailHtml = "Your link for reset password <a href='http://localhost/phpproject/views/confirm_password.php?token=" . $token . "'>Here</a>";
 
 // إرسال البريد الإلكتروني
 send_mail($_POST['email'], "Password reset", $mailHtml);
 
+$_SESSION['message'] = "A password reset link has been sent to your email.";
+echo "<script>location.href='login.php';</script>";
+exit();
+}
+else {             $errors['forgot_password'] = "No account found with this email.";
+}
 
+
+}
+}
 ?>
 
 
@@ -65,88 +86,65 @@ send_mail($_POST['email'], "Password reset", $mailHtml);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" conntent="width=device-width, initial-scale=1.0">
     <title>Reset Password</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-image: url('../public/images/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent box */
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #555;
-        }
-        input[type="email"] {
-            width: 100%;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.875rem;
-            color: #777;
-        }
-      
-            
-        a {
-    text-decoration: none; 
-    color: #fff; 
-}
-
-a:hover {
-    color: #ccc; 
-}
-    </style>
+.was-validated .form-control:valid,
+.was-validated .form-control.is-valid,
+.was-validated .form-control:invalid,
+.was-validated .form-control.is-invalid {
+  background-image: none; /* Remove the checkmark */
+  border-color: inherit; /* Keep the normal border color */
+  padding-right: 0.75rem; /* Adjust padding if necessary */}
+</style>
 </head>
-<body>
-    <div class="container">
-        <h2>Reset Password</h2>
-        <form action="" method="POST">
-            <label for="email">Email Address</label>
-            <input type="email" id="email" name="email" required placeholder="Enter your email address">
-            <button type="submit"> Send Rest link</button>
-        </form>
-        <div class="footer">
-            <p>We will send a link to reset your password to your email address.</p>
+<body style="background: url(../public/images/bg.jpg) center/100%;">
+  <div class="container my-5 text-white">
+    <h1 class="text-center">Cafeteria-PHP</h1>
+    <form action="" method="post" class="col-md-4 m-auto my-5 p-3 rounded" style="border: 1px solid #634322; box-shadow: 10px 5px 20px green;" novalidate>
+      <div class="row g-3 align-items-center my-3">
+        <h3 class="text-center my-3">Forgot Password</h3>
+        <div class="mb-3">
+          <label for="inputEmail" class="col-form-label d-block">Email</label>
+          <input type="email" name="email" id="inputEmail" class="form-control p-2" aria-describedby="emailHelpInline" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" required>
+          <div class="invalid-feedback">Please enter a valid email.</div>
         </div>
-    </div>
+      </div>
+      <?php if (isset($errors['forgot_password'])) : ?>
+        <p class="fs-5 alert alert-danger rounded text-center p-2 mb-4"><?= $errors['forgot_password'] ?></p>
+      <?php endif; ?>
+      <div class="row m-auto text-center">
+        <button type="submit" name="forgot" class="btn btn-primary mb-4 w-50 m-auto">Send Reset Link</button>
+        <a href="login.php" class="link-outline-primary mb-4">Back to Login</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector('form');
+
+      form.addEventListener('submit', (e) => {
+        let isValid = true;
+        const emailInput = document.getElementById('inputEmail');
+        //const passwordInput = document.getElementById('inputPassword');
+
+        // Basic email and password validation
+        if (!emailInput.value.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) {
+          emailInput.classList.add('is-invalid');
+          isValid = false;
+        } else {
+          emailInput.classList.remove('is-invalid');
+        }
+        if (!isValid) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      });
+    });
+  </script>
 </body>
+
+
 </html>

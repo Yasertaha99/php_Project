@@ -36,7 +36,7 @@ $base_url = "http://localhost/phpproject";
       <ul class="navbar-nav d-flex align-items-center">
         <li class="nav-item d-flex align-items-center">
           <a class="nav-link small d-flex align-items-center" href="#">
-          <img class="nav-img rounded-circle me-2 me-lg-3" src="<?= $base_url; ?><?= $_SESSION['user']['image']; ?>" width="40px" width-lg="60px" />            <span class="nav-user"><?= $_SESSION['user']['name'] ?></span>
+          <img class="nav-img rounded-circle me-2 me-lg-3" src="<?= $base_url; ?>/public/images/<?= $_SESSION['user']['image']; ?>" width="40px" width-lg="60px" />            <span class="nav-user"><?= $_SESSION['user']['name'] ?></span>
           </a>
         </li>
         <li class="nav-item d-none d-lg-block">

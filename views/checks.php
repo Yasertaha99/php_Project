@@ -199,7 +199,7 @@
                 const div = document.createElement('div');
                 div.className = 'col-md-3';
                 div.innerHTML = `
-                    <img src="../public/images/${product.image}" alt="Product Image" class="img-fluid">
+                    <img src="../AllProdect/view/products/uploads/${product.image}" alt="Product Image" class="img-fluid">
                     <p>Price: ${product.price}</p>
                     <p>Quantity: ${product.quantity}</p>
                 `;

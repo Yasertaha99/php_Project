@@ -1,47 +1,64 @@
 <?php
-$host = 'localhost';
-$db = 'p1';
-$user = 'root';
-$pass = '';
+session_start();
+require_once "../models/db.php";
+require_once "templates/head.php";
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+$db = DB::getInstance();
+$conn=$db->getConnection();
+// try {
+//     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
+//     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+// } catch (PDOException $e) {
+//     die("Database connection failed: " . $e->getMessage());
+// }
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
-}
+    // $token = isset($_GET['token']) ? $_GET['token'] : null;
 
-$token = isset($_GET['token']) ? $_GET['token'] : null;
-
-if ($token === null) {
-    die("Invalid token.");
-}
+// if ($token === null) {
+//     die("Invalid token.");
+// }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $password = $_POST['password'];
+    $password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
+    $token = $_GET['token'] ?? '';
+    
+    $errors = [];
 
-    if ($password === $confirm_password) {
+    // Check if the password is valid
+    if (empty($password) || strlen($password) < 6 || 
+        !preg_match('/[A-Z]/', $password) ||    // At least one uppercase letter
+        !preg_match('/\d/', $password) ||       // At least one digit
+        !preg_match('/[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/', $password)) {  // At least one special character
+        $errors['reset'] = "Password must be at least 6 characters, include at least one uppercase letter, one number, and one special character.";
+    }
+    
+    if ($password !== $confirm_password) {
+        $errors['reset'] = "Passwords do not match. Please try again.";
+    }
+     if( $token ===''){ $errors['reset'] = "Empty token. Password reset failed.";}
+
+    if (empty($errors)) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-        // البحث عن المستخدم باستخدام التوكين
-        $stmt = $pdo->prepare("SELECT * FROM user WHERE reset_token = ?");
-        $stmt->execute([$token]);
+        // Find the user by token
+        $stmt = $conn->prepare("SELECT * FROM user WHERE reset_token = ?");
+        $stmt->execute([hash('sha256', $token)]);
 
         if ($stmt->rowCount() > 0) {
-            $stmt = $pdo->prepare("UPDATE user SET password = ?, reset_token = NULL WHERE reset_token = ?");
-            if ($stmt->execute([$hashed_password, $token])) {
-                $message = "Password has been successfully updated.";
+            $stmt = $conn->prepare("UPDATE user SET password = ?, reset_token = '' WHERE reset_token = ?");
+            if ($stmt->execute([$hashed_password, hash('sha256', $token)])) {
+                $_SESSION['message'] = "Password has been successfully updated.";
+                echo "<script>location.href='login.php';</script>";
             } else {
-                $message = "An error occurred while updating the password. Please try again.";
+                $errors['reset'] = "An error occurred while updating the password. Please try again.";
             }
         } else {
-            $message = "Invalid token. Password reset failed.";
+            $errors['reset'] = "Invalid token. Password reset failed.";
         }
-    } else {
-        $message = "Passwords do not match. Please try again.";
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,84 +67,115 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirm Password</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-image: url('../public/images/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent box */
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #555;
-        }
-        input[type="password"] {
-            width: 100%;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.875rem;
-            color: #777;
-        }
-        a {
-            text-decoration: none;
-            color: #fff;
-        }
-        a:hover {
-            color: #ccc;
-        }
-    </style>
+.was-validated .form-control:valid,
+.was-validated .form-control.is-valid,
+.was-validated .form-control:invalid,
+.was-validated .form-control.is-invalid {
+  background-image: none; /* Remove the checkmark */
+  border-color: inherit; /* Keep the normal border color */
+  padding-right: 0.75rem; /* Adjust padding if necessary */}
+</style>
 </head>
-<body>
-    <div class="container">
-        <h2>Confirm Password</h2>
-        <form action="" method="POST">
-            <label for="password">New Password</label>
-            <input type="password" id="password" name="password" required placeholder="Enter your new password">
-            <label for="confirm_password">Confirm Password</label>
-            <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm your new password">
-            <button type="submit">Update Password</button>
-        </form>
-        <div class="footer">
-            <p><?php if (isset($message)) echo $message; ?></p>
+<body style="background: url(../public/images/bg.jpg) center/100%;">
+  <div class="container my-5 text-white">
+    <h1 class="text-center">Cafeteria-PHP</h1>
+    <form action="" method="post" class="col-md-4 m-auto my-5 p-3 rounded" style="border: 1px solid #634322; box-shadow: 10px 5px 20px green;" novalidate>
+      <div class="row g-3 align-items-center my-3">
+        <h3 class="text-center my-3">Reset Password</h3>
+        <div class="mb-3">
+          <label for="inputPassword" class="col-form-label">New Password</label>
+          <div class="input-group">
+            <input type="password" name="new_password" id="inputPassword" class="form-control p-2" pattern="\S{6,}" required>
+            <button class="btn btn-outline-light" type="button" id="togglePassword">
+              <i class="fa fa-eye-slash"></i>
+            </button>
+            <div class="invalid-feedback">Please enter a valid password</div>
+          </div>
         </div>
-    </div>
+        <div class="mb-3">
+          <label for="confirmPassword" class="col-form-label">Confirm Password</label>
+          <div class="input-group">
+            <input type="password" name="confirm_password" id="confirmPassword" class="form-control p-2" pattern="\S{6,}" required>
+            <button class="btn btn-outline-light" type="button" id="toggleConfirmPassword">
+              <i class="fa fa-eye-slash"></i>
+            </button>
+            <div class="invalid-feedback">Passwords do not match</div>
+          </div>
+        </div>
+      </div>
+      <?php if (isset($errors['reset'])) : ?>
+        <p class="fs-5 alert alert-danger rounded text-center p-2 mb-4"><?= $errors['reset'] ?></p>
+      <?php endif; ?>
+      <div class="row m-auto text-center">
+        <button type="submit" name="reset" class="btn btn-primary mb-4 w-50 m-auto">Reset Password</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form');
+
+  form.addEventListener('submit', (e) => {
+    const passwordInput = document.getElementById('inputPassword');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    
+    let isValid = true;
+    const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{6,}$/;
+
+    // Validate password pattern
+    if (!password.match(passwordPattern)) {
+      passwordInput.classList.add('is-invalid');
+      isValid = false;
+    } else {
+      passwordInput.classList.remove('is-invalid');
+    }
+
+    // Validate password match
+    if (password !== confirmPassword) {
+      confirmPasswordInput.classList.add('is-invalid');
+      isValid = false;
+    } else {
+      confirmPasswordInput.classList.remove('is-invalid');
+    }
+
+    if (!isValid) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    form.classList.add('was-validated');
+  });
+
+  // Toggle password visibility
+  function togglePasswordVisibility(inputId, buttonId) {
+    const passwordInput = document.getElementById(inputId);
+    const button = document.getElementById(buttonId);
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+
+    if (type === 'password') {
+      button.innerHTML = '<i class="fa fa-eye-slash"></i>';
+    } else {
+      button.innerHTML = '<i class="fa fa-eye"></i>';
+    }
+  }
+
+  // Add event listeners to toggle password visibility buttons
+  const togglePasswordButton = document.getElementById('togglePassword');
+  togglePasswordButton.addEventListener('click', () => {
+    togglePasswordVisibility('inputPassword', 'togglePassword');
+  });
+
+  const toggleConfirmPasswordButton = document.getElementById('toggleConfirmPassword');
+  toggleConfirmPasswordButton.addEventListener('click', () => {
+    togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword');
+  });
+});
+</script>
+
 </body>
+
 </html>

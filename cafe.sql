@@ -152,7 +152,7 @@ CREATE TABLE `user` (
   `role` enum('user','admin') NOT NULL DEFAULT 'user',
   `image` varchar(255) NOT NULL,
   `room_id` int(11) NOT NULL,
-  `reset_token` varchar(255) NOT NULL
+  `reset_token` varchar(255) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -160,8 +160,8 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `name`, `email`, `password`, `role`, `image`, `room_id`, `reset_token`) VALUES
-(1, 'admin', 'admin@admin.com', '$2y$10$KJ4.KLF/AqqMKGs9j0/xZOmjqlc2ViZAX9jQp7DJF5xtExg/ecDRG', 'admin', '../public/images/user1.png', 0, ''),
-(2, 'Yasser Taha', 'user@user.com', '$2y$10$Ql07ntUOIYhYf/QFgCbAY.zoBfI1zT/rCf27J04qTyrtgCL7e6W2S', 'user', '../public/images/user1.png', 1, '');
+(1, 'admin', 'admin@admin.com', '$2y$10$KJ4.KLF/AqqMKGs9j0/xZOmjqlc2ViZAX9jQp7DJF5xtExg/ecDRG', 'admin', '/public/images/user1.png', 0, ''),
+(2, 'Yasser Taha', 'user@user.com', '$2y$10$Ql07ntUOIYhYf/QFgCbAY.zoBfI1zT/rCf27J04qTyrtgCL7e6W2S', 'user', '/public/images/user1.png', 1, '');
 
 --
 -- Indexes for dumped tables

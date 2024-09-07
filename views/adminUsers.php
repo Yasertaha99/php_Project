@@ -2,6 +2,12 @@
 require_once "templates/adminNav.php";
 require_once "../models/db.php";
 require_once "../models/allProducts&usersModel.php";
+session_start();
+$errorMessages = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
+$successMessage = isset($_SESSION['success']) ? $_SESSION['success'] : '';
+
+unset($_SESSION['errors']);
+unset($_SESSION['success']);
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 // Instantiate the DB class
@@ -25,7 +31,24 @@ $users = $db2->select("SELECT u.*, r.ext FROM user u INNER JOIN room r
 ON u.room_id = r.id WHERE u.id != $adminId LIMIT $start, $rows_per_page");
 
 ?>
+ <?php if ($successMessage) : ?>
+    <div id="success-alert" class="fs-5 alert alert-success rounded text-center p-2 mb-4" role="alert">
+        <?= htmlspecialchars($successMessage) ?>
+    </div>
 
+    <script>
+        // Wait until the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set a timeout to hide the success message after 2 seconds (2000 milliseconds)
+            setTimeout(() => {
+                const alertElement = document.getElementById('success-alert');
+                if (alertElement) {
+                    alertElement.style.display = 'none'; // Hides the alert
+                }
+            }, 2000);
+        });
+    </script>
+<?php endif; ?>
 <div class="container">
   <div class="row">
     <div class="table-responsive">
@@ -55,7 +78,7 @@ ON u.room_id = r.id WHERE u.id != $adminId LIMIT $start, $rows_per_page");
               <td><?= $user['email']; ?></td>
               <td><?= $user['room_id']; ?></td>
               <td><?= $user['ext']; ?></td>
-              <td><img src='..<?= $user['image']; ?>' alt='User Image' style='max-width: 50px; max-height: 50px;'></td>
+              <td><img src='../public/images/<?= $user['image']; ?>' alt='User Image' style='max-width: 50px; max-height: 50px;'></td>
               <td class='text-center'>
                 <!-- Buttons for edit and delete actions -->
                 <!-- Button trigger modal for edit -->
