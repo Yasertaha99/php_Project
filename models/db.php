@@ -5,7 +5,7 @@ class DB
   private $host = 'localhost';
   private $dbname = 'cafe';
   private $user = 'root';
-  private $password = 'mmMMssSS$2024';
+  private $password = 'mai101214@';
   private static $instance;
   private $connection;
 

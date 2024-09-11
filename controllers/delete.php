@@ -14,7 +14,10 @@ class UserDeleter
     public function deleteUser($userId)
     {
         // Delete the user from the database
+        $user = $this->db->select("user", ["id"], [$userId], true);
+
         $this->db->delete("user", ["id"], [$userId]);
+        $this->db->delete("room", ["id"], [ $user['room_id']]);
     }
 
     public function processRequest()

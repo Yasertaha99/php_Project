@@ -51,7 +51,7 @@ class AuthenticateController
       $_SESSION['reset_code'] = $resetCode;
       $_SESSION['email'] = $user['email'];
 
-      $this->sendResetCode($user['name'], $user['email'], $resetCode);
+      //$this->sendResetCode($user['name'], $user['email'], $resetCode);
       $this->redirectToResetCodePage();
     } else {
       $this->redirectToForgetPasswordPage("This email is not registered");

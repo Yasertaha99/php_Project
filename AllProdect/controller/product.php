@@ -5,7 +5,7 @@ ini_set('display_errors', '1');
 //require("../model/product.php");
 //require(realpath(__DIR__ . '/../model/category.php'));
 require(realpath(__DIR__ . '/../model/product.php'));
-
+ 
 class ProductController
 {
     private $cate1;

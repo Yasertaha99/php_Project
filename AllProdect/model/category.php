@@ -4,10 +4,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
 require("dbconnection.php");
-
+ 
 function dbconnect()
 {
-    $db = new DBConnection('localhost', 'cafe', 'root', 'mmMMssSS$2024');
+    $db = new DBConnection('localhost', 'cafe', 'root', 'mai101214@');
 $db->connect('mysql');
     return $db;
 }

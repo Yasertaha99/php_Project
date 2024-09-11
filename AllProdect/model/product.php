@@ -150,4 +150,4 @@ class Product
 // $prod1= new Product('Grean Tea', 20, 'pic', 'avaliable', $cate1);
 // $prod1->update(11);
 // print_r($prod1->getUnAvailable());
-?>
+?> 

@@ -21,6 +21,11 @@ class UserController
         $result = $this->db->select('user', ['email'], [$email], true);
         return !$result;
     }
+    private function isRoomUnique($id)
+    {
+        $result = $this->db->select('room', ['id'], [$id], true);
+        return !$result;
+    }
 
     private function validateImage($file)
     {
@@ -55,6 +60,9 @@ class UserController
 
         if ($roomNum < 1 ||$roomNum > 500 ) {
             $errors[] = " Please provide a 1 to 500 room number.";
+        }
+        if (!$this->isRoomUnique($roomNum) ) {
+            $errors[] = " room number allrady revrsed.";
         }
         if ($ext < 1 || $ext > 50 ) {
             $errors[] = " Please provide a 1 to 50  extension number.";
